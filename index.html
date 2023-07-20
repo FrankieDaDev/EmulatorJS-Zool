@@ -114,6 +114,7 @@
                 const url = URL.createObjectURL(new Blob([input.files[0]]))
                 const parts = input.files[0].name.split(".")
                 const url2 = URL.createObjectURL(new Blob([input2.files[0]]))
+                const parts2 = input.files[0].name.split(".")
                 const core = await (async (ext) => {
                     if (["fds", "nes", "unif", "unf"].includes(ext))
                         return "nes"
@@ -161,7 +162,7 @@
                         }
 
                         button.onclick = () => resolve(select[select.selectedIndex].value)
-                        button.textContent = parts.shift()
+                        button.textContent = "Load Game"
                         box.innerHTML = ""
 
                         box.appendChild(select)
@@ -182,7 +183,7 @@
                 document.body.appendChild(div)
                 window.EJS_player = "#game"
                 window.EJS_gameName = parts.shift()
-                window.EJS_biosUrl = url2
+                window.EJS_biosUrl = parts2.shift()
                 window.EJS_gameUrl = url
                 window.EJS_core = core
                 window.EJS_pathtodata = "data/"
