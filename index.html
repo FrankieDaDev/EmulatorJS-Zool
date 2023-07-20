@@ -99,11 +99,15 @@
     </head>
 
     <body>
-        <div id = box3>
+        <div id = box>
             <input type = file id = input>
             Drag ROM file or click here
+
+        </div>
+                <div id = box2>
             <input type = file id = input2>
-            Bios here
+            Drag bios file or click here
+
         </div>
         <script>
             input.onchange = async () => {
@@ -173,6 +177,7 @@
                 div.id = "display"
 
                 box.remove()
+                box2.remove()
                 div.appendChild(sub)
                 document.body.appendChild(div)
                 window.EJS_player = "#game"
