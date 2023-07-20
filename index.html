@@ -160,11 +160,9 @@
                 box.remove()
                 div.appendChild(sub)
                 document.body.appendChild(div)
-                let cors = require("cors");
-                app.use(cors());
                 window.EJS_player = "#game"
                 window.EJS_gameName = parts.shift()
-                window.EJS_biosUrl = "https://archive.org/download/PlayStationBIOSFilesNAEUJP/scph5501.bin"
+                window.EJS_biosUrl = "http://psxdev.net/downloads/bios/psx/SCPH-5501.BIN"
                 window.EJS_gameUrl = url
                 window.EJS_core = core
                 window.EJS_pathtodata = "data/"
