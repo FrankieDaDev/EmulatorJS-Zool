@@ -161,7 +161,7 @@
                         }
 
                         button.onclick = () => resolve(select[select.selectedIndex].value)
-                        button.textContent = parts
+                        button.textContent = parts.shift()
                         box.innerHTML = ""
 
                         box.appendChild(select)
