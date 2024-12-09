@@ -25,11 +25,14 @@
             width: 100%;
             height: 100%;
         }
-        #rom-input {
+        #rom-input, #bios-input {
             position: absolute;
             top: 10px;
             left: 10px;
             z-index: 1000;
+        }
+        #bios-input {
+            top: 50px; /* Adjust position for BIOS input */
         }
     </style>
 </head>
@@ -43,6 +46,12 @@
     <div id="rom-input">
         <label for="rom-url">Enter ROM URL:</label>
         <input type="text" id="rom-url" size="50" value="https://raw.githubusercontent.com/FrankieDaDev/EmulatorJS-Zool/main/Zool%20(U).smc">
+    </div>
+    
+    <!-- BIOS Input -->
+    <div id="bios-input">
+        <label for="bios-url">Enter BIOS URL:</label>
+        <input type="text" id="bios-url" size="50" value="https://raw.githubusercontent.com/FrankieDaDev/EmulatorJS-Zool/main/scph5501.bin">
         <button id="load-rom">Load ROM</button>
     </div>
 
@@ -64,9 +73,10 @@
             return coreMap[ext.toLowerCase()] || null;
         };
 
-        // Load ROM when button is clicked
+        // Load ROM and BIOS when button is clicked
         document.getElementById("load-rom").addEventListener("click", () => {
             const romUrl = document.getElementById("rom-url").value;
+            const biosUrl = document.getElementById("bios-url").value;
             const romFileName = romUrl.split("/").pop();
             const romExtension = romFileName.split(".").pop();
             const core = getCoreFromExtension(romExtension);
@@ -79,7 +89,7 @@
                 window.EJS_core = core;
                 window.EJS_gameUrl = romUrl;
                 window.EJS_gameName = romFileName.split(".")[0]; // Name without extension
-                window.EJS_biosUrl = "scph5501.bin"; // BIOS file path
+                window.EJS_biosUrl = biosUrl; // BIOS file path from input
                 window.EJS_pathtodata = "data/";  // Adjust if necessary
                 window.EJS_startOnLoaded = true;
 
