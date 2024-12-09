@@ -106,9 +106,9 @@
         </div>
         <div id="box2"></div>
         <script>
-            input.onchange = async () => {
-                const url = URL.createObjectURL(new Blob([input.files[0]]))
-                const parts = input.files[0].name.split(".")
+            const loadRom = async (url) => {
+                const parts = url.split("/")
+                const ext = parts.pop().split(".").pop()
                 const core = await (async (ext) => {
                     if (["fds", "nes", "unif", "unf"].includes(ext))
                         return "nes"
@@ -162,7 +162,7 @@
                         box.appendChild(select)
                         box.appendChild(button)
                     })
-                })(parts.pop())
+                })(ext)
 
                 const div = document.createElement("div")
                 const sub = document.createElement("div")
@@ -176,7 +176,7 @@
                 div.appendChild(sub)
                 document.body.appendChild(div)
                 window.EJS_player = "#game"
-                window.EJS_gameName = parts.shift()
+                window.EJS_gameName = parts.pop()
                 window.EJS_biosUrl = "scph5501.bin"
                 window.EJS_gameUrl = url
                 window.EJS_core = core
@@ -186,6 +186,9 @@
                 script.src = "data/loader.js"
                 document.body.appendChild(script)
             }
+
+            const url = "https://github.com/FrankieDaDev/EmulatorJS-Zool/raw/main/Zool%20(U).smc"; // URL of your ROM
+            loadRom(url);
 
             box.ondragover = () => box.setAttribute("drag", true)
             box.ondragleave = () => box.removeAttribute("drag")
