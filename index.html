@@ -37,6 +37,9 @@
         <div id="display"></div>
         <script>
             const loadRom = async (url) => {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const objectURL = URL.createObjectURL(blob);
                 const parts = url.split("/")
                 const ext = parts.pop().split(".").pop()
                 const core = await (async (ext) => {
@@ -68,7 +71,7 @@
                 window.EJS_player = "#game"
                 window.EJS_gameName = parts.pop()
                 window.EJS_biosUrl = "scph5501.bin"
-                window.EJS_gameUrl = url
+                window.EJS_gameUrl = objectURL
                 window.EJS_core = core
                 window.EJS_pathtodata = "data/"
                 window.EJS_startOnLoaded = true
