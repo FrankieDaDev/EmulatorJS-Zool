@@ -20,91 +20,21 @@
                 background-color: #222
             }
 
-            body, #box {
+            body, #display {
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
 
-            #box {
-                color: #aaa;
-                height: 20em;
-                width: 30em;
-                max-width: 80%;
-                max-height: 80%;
-                background-color: #333;
-                border-radius: 0.4em;
-                border: 2px solid #555;
-                position: relative;
-                flex-direction: column;
-                transition-duration: 0.2s;
-                overflow: hidden
-            }
-
-            #box2 {
-                color: #aaa;
-                height: 5em;
-                width: 30em;
-                max-width: 80%;
-                max-height: 80%;
-                background-color: #333;
-                border-radius: 0.4em;
-                border: 2px solid #555;
-                position: relative;
-                flex-direction: column;
-                transition-duration: 0.2s;
-                overflow: hidden
-            }
-
-            #box:hover, #box[drag] {
-                border-color: #38f;
-                color: #ddd
-            }
-
-            #input {
-                cursor: pointer;
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                opacity: 0
-            }
-
             #display {
                 width: 100%;
-                height: 100%
-            }
-
-            select, button {
-                padding: 0.6em 0.4em;
-                margin: 0.5em;
-                width: 15em;
-                max-width: 100%;
-                font-family: monospace;
-                font-weight: bold;
-                font-size: 16px;
-                background-color: #444;
-                color: #aaa;
-                border-radius: 0.4em;
-                border: 1px solid #555;
-                cursor: pointer;
-                transition-duration: 0.2s
-            }
-
-            select:hover, button:hover {
-                background-color: #666;
-                color: #ddd
+                height: 100%;
             }
         </style>
     </head>
 
     <body>
-        <div id="box">
-            <input type="file" id="input">
-            Drag ROM file or click here
-        </div>
-        <div id="box2"></div>
+        <div id="display"></div>
         <script>
             const loadRom = async (url) => {
                 const parts = url.split("/")
@@ -122,46 +52,7 @@
                     if (["nds", "gba", "gb", "z64", "n64"].includes(ext))
                         return ext
 
-                    return await new Promise(resolve => {
-                        const cores = {
-                            "Nintendo 64": "n64",
-                            "Nintendo Game Boy": "gb",
-                            "Nintendo Game Boy Advance": "gba",
-                            "Nintendo DS": "nds",
-                            "Nintendo Entertainment System": "nes",
-                            "Super Nintendo Entertainment System": "snes",
-                            "PlayStation": "psx",
-                            "Virtual Boy": "vb",
-                            "Sega Mega Drive": "segaMD",
-                            "Sega Master System": "segaMS",
-                            "Sega CD": "segaCD",
-                            "Atari Lynx": "lynx",
-                            "Sega 32X": "sega32x",
-                            "Atari Jaguar": "jaguar",
-                            "Sega Game Gear": "segaGG",
-                            "Sega Saturn": "segaSaturn",
-                            "Atari 7800": "atari7800",
-                            "Atari 2600": "atari2600"
-                        }
-
-                        const button = document.createElement("button")
-                        const select = document.createElement("select")
-
-                        for (const type in cores) {
-                            const option = document.createElement("option")
-
-                            option.value = cores[type]
-                            option.textContent = type
-                            select.appendChild(option)
-                        }
-
-                        button.onclick = () => resolve(select[select.selectedIndex].value)
-                        button.textContent = "Load game"
-                        box.innerHTML = ""
-
-                        box.appendChild(select)
-                        box.appendChild(button)
-                    })
+                    return "snes"; // Default to SNES if not found
                 })(ext)
 
                 const div = document.createElement("div")
@@ -171,27 +62,23 @@
                 sub.id = "game"
                 div.id = "display"
 
-                box.remove()
-                box2.remove()
-                div.appendChild(sub)
                 document.body.appendChild(div)
+                div.appendChild(sub)
+
                 window.EJS_player = "#game"
                 window.EJS_gameName = parts.pop()
                 window.EJS_biosUrl = "scph5501.bin"
                 window.EJS_gameUrl = url
                 window.EJS_core = core
                 window.EJS_pathtodata = "data/"
-                window.EJS_startOnLoaded = true;
+                window.EJS_startOnLoaded = true
 
                 script.src = "data/loader.js"
                 document.body.appendChild(script)
             }
 
-            const url = "https://github.com/FrankieDaDev/EmulatorJS-Zool/raw/main/Zool%20(U).smc"; // URL of your ROM
-            loadRom(url);
-
-            box.ondragover = () => box.setAttribute("drag", true)
-            box.ondragleave = () => box.removeAttribute("drag")
+            const url = "https://github.com/FrankieDaDev/EmulatorJS-Zool/raw/main/Zool%20(U).smc"
+            loadRom(url)
         </script>
     </body>
 </html>
