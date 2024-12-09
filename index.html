@@ -1,87 +1,82 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>EmulatorJS</title>
+<head>
+    <title>EmulatorJS - Automatic ROM Loading</title>
+    <link rel="icon" href="docs/favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link rel="icon" href="docs/favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background-color: #222;
+        }
+        body {
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        #display {
+            width: 100%;
+            height: 100%;
+        }
+        #game {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Emulator Container -->
+    <div id="display">
+        <div id="game"></div>
+    </div>
 
-        <style>
-            body, html {
-                height: 100%;
-            }
+    <script>
+        // Paths to your ROM and BIOS files
+        const romUrl = "your-rom-file.extension";   // Replace with your ROM filename
+        const biosUrl = "scph5501.bin";             // BIOS file path
 
-            body {
-                font-family: monospace;
-                font-weight: bold;
-                font-size: 20px;
-                margin: 0;
-                overflow: hidden;
-                background-color: #222
-            }
+        // Function to determine the emulator core based on the ROM file extension
+        const getCoreFromExtension = (ext) => {
+            const coreMap = {
+                "nes": "nes",
+                "unf": "nes",
+                "smc": "snes",
+                "sfc": "snes",
+                "fig": "snes",
+                "bin": "psx",
+                "img": "psx",
+                "iso": "psx",
+                "cue": "psx",
+                // Add other mappings as needed
+            };
+            return coreMap[ext.toLowerCase()] || null;
+        };
 
-            body, #display {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
+        // Extract file extension from ROM filename
+        const romFileName = romUrl.split("/").pop();
+        const romExtension = romFileName.split(".").pop();
+        const core = getCoreFromExtension(romExtension);
 
-            #display {
-                width: 100%;
-                height: 100%;
-            }
-        </style>
-    </head>
+        if (!core) {
+            alert("Unsupported ROM file type.");
+        } else {
+            // Configure EmulatorJS
+            window.EJS_player = "#game";
+            window.EJS_core = core;
+            window.EJS_gameUrl = romUrl;
+            window.EJS_gameName = romFileName.split(".")[0]; // Name without extension
+            window.EJS_biosUrl = biosUrl;
+            window.EJS_pathtodata = "data/";  // Adjust if necessary
+            window.EJS_startOnLoaded = true;
 
-    <body>
-        <div id="display"></div>
-        <script>
-            const loadRom = async (url) => {
-                const response = await fetch(url);
-                const blob = await response.blob();
-                const objectURL = URL.createObjectURL(blob);
-                const parts = url.split("/")
-                const ext = parts.pop().split(".").pop()
-                const core = await (async (ext) => {
-                    if (["fds", "nes", "unif", "unf"].includes(ext))
-                        return "nes"
-
-                    if (["smc", "fig", "sfc", "gd3", "gd7", "dx2", "bsx", "swc"].includes(ext))
-                        return "snes"
-
-                    if (["z64", "n64"].includes(ext))
-                        return "n64"
-
-                    if (["nds", "gba", "gb", "z64", "n64"].includes(ext))
-                        return ext
-
-                    return "snes"; // Default to SNES if not found
-                })(ext)
-
-                const div = document.createElement("div")
-                const sub = document.createElement("div")
-                const script = document.createElement("script")
-
-                sub.id = "game"
-                div.id = "display"
-
-                document.body.appendChild(div)
-                div.appendChild(sub)
-
-                window.EJS_player = "#game"
-                window.EJS_gameName = parts.pop()
-                window.EJS_biosUrl = "scph5501.bin"
-                window.EJS_gameUrl = objectURL
-                window.EJS_core = core
-                window.EJS_pathtodata = "data/"
-                window.EJS_startOnLoaded = true
-
-                script.src = "data/loader.js"
-                document.body.appendChild(script)
-            }
-
-            const url = "https://github.com/FrankieDaDev/EmulatorJS-Zool/raw/main/Zool%20(U).smc"
-            loadRom(url)
-        </script>
-    </body>
+            // Load the EmulatorJS loader script
+            const script = document.createElement("script");
+            script.src = "data/loader.js"; // Adjust path if necessary
+            document.body.appendChild(script);
+        }
+    </script>
+</body>
 </html>
