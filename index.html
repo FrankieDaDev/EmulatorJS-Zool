@@ -5,18 +5,19 @@
     <link rel="icon" href="docs/favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- Include your effects.css file -->
+    <link rel="stylesheet" href="effects.css">
     <style>
         body, html {
             height: 100%;
             margin: 0;
             overflow: hidden;
-            /* Set your GIF as the background */
-            background: url('https://raw.githubusercontent.com/FrankieDaDev/EmulatorJS-Zool/main/Zool_start_background.gif') center center / cover no-repeat fixed;
+            background: url('Zool_start_background.gif') center center / cover no-repeat fixed;
         }
         body {
             font-family: monospace;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 2vh;
         }
         #display {
             width: 100%;
@@ -26,45 +27,45 @@
             width: 100%;
             height: 100%;
         }
-        #rom-input, #bios-input {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
-        }
-        #bios-input {
-            top: 50px; /* Adjust position for BIOS input */
+
+        /* Hide the input fields */
+        #hidden-inputs {
+            display: none;
         }
 
-        /* Styles to ensure visibility over the background */
-        label, input, button {
-            color: #fff;
-            text-shadow: 0 0 5px #000;
+        /* Center the Play Button image */
+        #play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            cursor: pointer;
         }
-        input, button {
-            background-color: rgba(0, 0, 0, 0.5);
-            border: 1px solid #555;
-            border-radius: 5px;
+
+        /* Adjust the image size if needed */
+        #play-button img {
+            max-width: 100%;
+            height: auto;
+            display: block;
         }
     </style>
 </head>
 <body>
+    <!-- Hidden Inputs -->
+    <div id="hidden-inputs">
+        <input type="text" id="rom-url" value="https://raw.githubusercontent.com/FrankieDaDev/EmulatorJS-Zool/main/Zool%20(U).smc">
+        <input type="text" id="bios-url" value="https://raw.githubusercontent.com/FrankieDaDev/EmulatorJS-Zool/main/scph5501.bin">
+    </div>
+
+    <!-- Play Button -->
+    <div id="play-button">
+        <img src="Play_Button.png" alt="Play Now">
+    </div>
+
     <!-- Emulator Container -->
     <div id="display">
         <div id="game"></div>
-    </div>
-
-    <!-- ROM Input -->
-    <div id="rom-input">
-        <label for="rom-url">Enter ROM URL:</label>
-        <input type="text" id="rom-url" size="50" value="https://raw.githubusercontent.com/FrankieDaDev/EmulatorJS-Zool/main/Zool%20(U).smc">
-    </div>
-    
-    <!-- BIOS Input -->
-    <div id="bios-input">
-        <label for="bios-url">Enter BIOS URL:</label>
-        <input type="text" id="bios-url" size="50" value="https://raw.githubusercontent.com/FrankieDaDev/EmulatorJS-Zool/main/scph5501.bin">
-        <button id="load-rom">Load ROM</button>
     </div>
 
     <script>
@@ -85,8 +86,8 @@
             return coreMap[ext.toLowerCase()] || null;
         };
 
-        // Load ROM and BIOS when button is clicked
-        document.getElementById("load-rom").addEventListener("click", () => {
+        // Load ROM and BIOS when the Play Button is clicked
+        document.getElementById("play-button").addEventListener("click", () => {
             const romUrl = document.getElementById("rom-url").value;
             const biosUrl = document.getElementById("bios-url").value;
             const romFileName = romUrl.split("/").pop();
@@ -96,12 +97,15 @@
             if (!core) {
                 alert("Unsupported ROM file type.");
             } else {
+                // Hide the Play Button
+                document.getElementById("play-button").style.display = 'none';
+
                 // Configure EmulatorJS
                 window.EJS_player = "#game";
                 window.EJS_core = core;
                 window.EJS_gameUrl = romUrl;
                 window.EJS_gameName = romFileName.split(".")[0]; // Name without extension
-                window.EJS_biosUrl = biosUrl; // BIOS file path from input
+                window.EJS_biosUrl = biosUrl; // BIOS file path
                 window.EJS_pathtodata = "data/";  // Adjust if necessary
                 window.EJS_startOnLoaded = true;
 
