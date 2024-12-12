@@ -1,0 +1,16 @@
+/* Center the Load ROM button */
+#load-rom-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    font-size: 24px;
+    padding: 20px 40px;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    text-shadow: 0 0 5px #000;
+}
