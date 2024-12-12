@@ -10,7 +10,8 @@
             height: 100%;
             margin: 0;
             overflow: hidden;
-            background-color: #222;
+            /* Set your GIF as the background */
+            background: url('https://raw.githubusercontent.com/FrankieDaDev/EmulatorJS-Zool/main/Zool_start_background.gif') center center / cover no-repeat fixed;
         }
         body {
             font-family: monospace;
@@ -33,6 +34,17 @@
         }
         #bios-input {
             top: 50px; /* Adjust position for BIOS input */
+        }
+
+        /* Styles to ensure visibility over the background */
+        label, input, button {
+            color: #fff;
+            text-shadow: 0 0 5px #000;
+        }
+        input, button {
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid #555;
+            border-radius: 5px;
         }
     </style>
 </head>
