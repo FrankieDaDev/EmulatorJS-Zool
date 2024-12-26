@@ -1,7 +1,181 @@
+/* Reset some default styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Style for the main container */
+.ejs_parent {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #333;
+}
+
+/* Style for the game container */
+.ejs_game {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Style for the start button */
+.ejs_start_button {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+/* Style for the loading text */
+.ejs_loading_text {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 16px;
+    z-index: 1000;
+}
+
+/* Style for the menu bar */
+.ejs_menu_bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.ejs_menu_bar_hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Style for menu buttons */
+.ejs_menu_button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.ejs_menu_button svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    fill: white;
+}
+
+/* Style for the context menu */
+.ejs_context_menu {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 1px solid #555;
+    border-radius: 5px;
+    padding: 10px;
+    z-index: 1001;
+    display: none;
+}
+
+.ejs_context_menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ejs_context_menu li {
+    padding: 5px 10px;
+    color: white;
+    cursor: pointer;
+}
+
+.ejs_context_menu li:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
 /* Style for the exit modal */
-.exit-modal .modal-dialog {
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1002;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
     max-width: 500px;
 }
-.exit-modal .modal-body {
-    padding: 20px;
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Style for the user info form */
+#user-info-form {
+    display: flex;
+    flex-direction: column;
+}
+
+#user-info-form input {
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+/* Style for the submit button */
+.submit-user-info {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.submit-user-info:hover {
+    background-color: #45a049;
 }
