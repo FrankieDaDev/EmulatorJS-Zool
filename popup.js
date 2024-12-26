@@ -1,5 +1,7 @@
 $(document).ready(function(){
     var timer;
+    var mouseY = 0;
+    var thresholdY = 10; // Adjust this value as needed
 
     // Initialize the exit modal
     $('.exit-modal').on('show.bs.modal', function (e) {
@@ -52,8 +54,23 @@ $(document).ready(function(){
     });
 
     // Show the modal when the user tries to leave the page
+    $(document).on('mousemove', function(e) {
+        if (e.clientY < thresholdY && e.clientY < mouseY) {
+            $('.exit-modal').modal('show');
+        }
+        mouseY = e.clientY;
+    });
+
+    // Fallback for mobile devices
+    $(window).on('touchstart', function(e) {
+        var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+        if (touch.clientY < thresholdY) {
+            $('.exit-modal').modal('show');
+        }
+    });
+
+    // Prevent the default behavior of the beforeunload event
     $(window).on('beforeunload', function(e) {
-        $('.exit-modal').modal('show');
         e.preventDefault();
         e.returnValue = '';
     });
