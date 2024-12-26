@@ -1,0 +1,7 @@
+/* Style for the exit modal */
+.exit-modal .modal-dialog {
+    max-width: 500px;
+}
+.exit-modal .modal-body {
+    padding: 20px;
+}
