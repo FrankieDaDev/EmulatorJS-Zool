@@ -175,7 +175,7 @@ class EmulatorJS {
     }
     checkForUpdates() {
         if (this.ejs_version.endsWith("-beta")) {
-            console.warn("Using EmulatorJS beta. Not checking for updates. This instance may be out of date. Using stable is highly recommended unless you build and ship your own cores.");
+            console.warn("Using Emulator beta. Not checking for updates. This instance may be out of date. Using stable is highly recommended unless you build and ship your own cores.");
             return;
         }
         fetch('https://cdn.emulatorjs.org/stable/data/version.json').then(response => {
@@ -261,9 +261,9 @@ class EmulatorJS {
             }
         } else {
             this.storage = {
-                rom: new window.EJS_STORAGE("EmulatorJS-roms", "rom"),
-                bios: new window.EJS_STORAGE("EmulatorJS-bios", "bios"),
-                core: new window.EJS_STORAGE("EmulatorJS-core", "core")
+                rom: new window.EJS_STORAGE("Emulator-roms", "rom"),
+                bios: new window.EJS_STORAGE("Emulator-bios", "bios"),
+                core: new window.EJS_STORAGE("Emulator-core", "core")
             }
         }
         // This is not cache. This is save data
@@ -279,7 +279,7 @@ class EmulatorJS {
                 if (this.config.backgroundBlur) this.game.classList.remove("ejs_game_background_blur");
             })
         } else {
-            this.game.setAttribute("style", "--ejs-background-color: "+this.config.backgroundColor+";");
+            this.game.setAttribute("style", "--background-color: "+this.config.backgroundColor+";");
         }
         
         if (Array.isArray(this.config.cheats)) {
@@ -580,7 +580,7 @@ class EmulatorJS {
                 this.textElem.innerText = this.localization("Download Game Core") + progress;
             }, false, {responseType: "arraybuffer", method: "GET"});
             if (res === -1) {
-                console.log("File not found, attemping to fetch from emulatorjs cdn");
+                console.log("File not found, attemping to fetch from emulator cdn");
                 res = await this.downloadFile("https://cdn.emulatorjs.org/stable/data/"+corePath, (progress) => {
                     this.textElem.innerText = this.localization("Download Game Core") + progress;
                 }, true, {responseType: "arraybuffer", method: "GET"});
@@ -592,7 +592,7 @@ class EmulatorJS {
                     }
                     return;
                 }
-                console.warn("File was not found locally, but was found on the emulatorjs cdn.\nIt is recommended to download the stable release from here: https://cdn.emulatorjs.org/releases/");
+                console.warn("File was not found locally, but was found on the emulator cdn.\nIt is recommended to download the stable release from here: https://cdn.emulatorjs.org/releases/");
                 console.warn("**THIS METHOD IS A FAILSAFE, AND NOT OFFICIALLY SUPPORTED. USE AT YOUR OWN RISK**");
             }
             gotCore(res.data);
@@ -1312,7 +1312,80 @@ class EmulatorJS {
             stopScreenRecording.setAttribute("hidden", "hidden");
             hideMenu();
         });
+        class EmulatorJS {
+            // ... New Code  ...
+        
+            createPausePopup() {
+                if (!this.pausePopup) {
+                    this.pausePopup = this.createElement('div');
+                    this.pausePopup.classList.add('ejs_pause_popup');
+                    this.pausePopup.style.display = 'none';
+                    this.pausePopup.style.position = 'absolute';
+                    this.pausePopup.style.top = '50%';
+                    this.pausePopup.style.left = '50%';
+                    this.pausePopup.style.transform = 'translate(-50%, -50%)';
+                    this.pausePopup.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+                    this.pausePopup.style.color = 'white';
+                    this.pausePopup.style.padding = '20px';
+                    this.pausePopup.style.borderRadius = '10px';
+                    this.pausePopup.style.zIndex = '1000';
+                    this.pausePopup.style.textAlign = 'center';
+        
+                    const message = this.createElement('p');
+                    message.innerText = 'Game Paused';
+                    this.pausePopup.appendChild(message);
+        
+                    const resumeButton = this.createElement('button');
+                    resumeButton.innerText = 'Resume';
+                    resumeButton.style.marginTop = '10px';
+                    this.addEventListener(resumeButton, 'click', () => {
+                        this.play();
+                        this.pausePopup.style.display = 'none';
+                    });
+                    this.pausePopup.appendChild(resumeButton);
+        
+                    this.elements.parent.appendChild(this.pausePopup);
+                }
+            }
+        
+            pause(dontUpdate) {
+                if (!this.paused) {
+                    this.togglePlaying(dontUpdate);
+                    if (this.pausePopup) {
+                        this.pausePopup.style.display = 'block';
+                    } else {
+                        this.createPausePopup();
+                        this.pausePopup.style.display = 'block';
+                    }
+                }
+            }
+            // Add this method to handle window close
+            handleWindowClose() {
+                window.addEventListener('beforeunload', (e) => {
+                    if (this.started) {
+                        e.preventDefault();
+                        e.returnValue = '';
+                        if (this.pausePopup) {
+                            this.pausePopup.style.display = 'block';
+                        } else {
+                            this.createPausePopup();
+                            this.pausePopup.style.display = 'block';
+                        }
+                    }
+                });
+            }
+        
+            constructor(element, config) {
+                // ... existing constructor code ...
+        
+                this.handleWindowClose();
+            }
+        
+            // ... New Code ...
 
+
+            
+        }
         const qSave = addButton("Quick Save", false, () => {
             const slot = this.settings['save-state-slot'] ? this.settings['save-state-slot'] : "1";
             this.gameManager.quickSave(slot);
@@ -1466,7 +1539,58 @@ class EmulatorJS {
             } catch(e){}
             this.currentPopup = null;
         }
+
+
+
+
+        class EmulatorJS {
+            // ... other existing methods ...
+        
+            createPausePopup() {
+                // ... the code you provided ...
+            }
+        
+            pause(dontUpdate) {
+                if (!this.paused) {
+                    this.togglePlaying(dontUpdate);
+                    if (this.pausePopup) {
+                        this.pausePopup.style.display = 'block';
+                    } else {
+                        this.createPausePopup();
+                        this.pausePopup.style.display = 'block';
+                    }
+                }
+            }
+        
+            handleWindowClose() {
+                window.addEventListener('beforeunload', (e) => {
+                    if (this.started) {
+                        e.preventDefault();
+                        e.returnValue = '';
+                        if (this.pausePopup) {
+                            this.pausePopup.style.display = 'block';
+                        } else {
+                            this.createPausePopup();
+                            this.pausePopup.style.display = 'block';
+                        }
+                    }
+                });
+            }
+        
+            constructor(element, config) {
+                // ... existing constructor code ...
+        
+                this.handleWindowClose();
+            }
+        
+            // ... rest of the existing code ...
+        }
+
     }
+
+
+
+    
     //creates a full box popup.
     createPopup(popupTitle, buttons, hidden) {
         if (!hidden) this.closePopup();
@@ -1946,7 +2070,7 @@ class EmulatorJS {
         }
 
         let exitMenuIsOpen = false;
-        const exitEmulation = addButton("Exit EmulatorJS", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 460"><path style="fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(255,255,255);stroke-opacity:1;stroke-miterlimit:4;" d="M 14.000061 7.636414 L 14.000061 4.5 C 14.000061 4.223877 13.776123 3.999939 13.5 3.999939 L 4.5 3.999939 C 4.223877 3.999939 3.999939 4.223877 3.999939 4.5 L 3.999939 19.5 C 3.999939 19.776123 4.223877 20.000061 4.5 20.000061 L 13.5 20.000061 C 13.776123 20.000061 14.000061 19.776123 14.000061 19.5 L 14.000061 16.363586 " transform="matrix(21.333333,0,0,21.333333,0,0)"/><path style="fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(255,255,255);stroke-opacity:1;stroke-miterlimit:4;" d="M 9.999939 12 L 21 12 M 21 12 L 18.000366 8.499939 M 21 12 L 18 15.500061 " transform="matrix(21.333333,0,0,21.333333,0,0)"/></svg>', async () => {
+        const exitEmulation = addButton("Exit ", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 460"><path style="fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(255,255,255);stroke-opacity:1;stroke-miterlimit:4;" d="M 14.000061 7.636414 L 14.000061 4.5 C 14.000061 4.223877 13.776123 3.999939 13.5 3.999939 L 4.5 3.999939 C 4.223877 3.999939 3.999939 4.223877 3.999939 4.5 L 3.999939 19.5 C 3.999939 19.776123 4.223877 20.000061 4.5 20.000061 L 13.5 20.000061 C 13.776123 20.000061 14.000061 19.776123 14.000061 19.5 L 14.000061 16.363586 " transform="matrix(21.333333,0,0,21.333333,0,0)"/><path style="fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(255,255,255);stroke-opacity:1;stroke-miterlimit:4;" d="M 9.999939 12 L 21 12 M 21 12 L 18.000366 8.499939 M 21 12 L 18 15.500061 " transform="matrix(21.333333,0,0,21.333333,0,0)"/></svg>', async () => {
             if (exitMenuIsOpen) return;
             exitMenuIsOpen = true;
             const popups = this.createSubPopup();
@@ -1994,7 +2118,7 @@ class EmulatorJS {
 
             this.addEventListener(submit, "click", (e) => {
                 popups[0].remove();
-                const body = this.createPopup("EmulatorJS has exited", {});
+                const body = this.createPopup(" has exited", {});
                 this.callEvent("exit");
             })
             setTimeout(this.menu.close.bind(this), 20);
@@ -2029,7 +2153,6 @@ class EmulatorJS {
             saveState: [saveState],
             loadState: [loadState],
             gamepad: [controlMenu],
-            cheat: [cheatMenu],
             cacheManager: [cache],
             saveSavFiles: [saveSavFiles],
             loadSavFiles: [loadSavFiles],
