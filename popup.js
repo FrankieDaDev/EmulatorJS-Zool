@@ -9,11 +9,6 @@ $(document).ready(function(){
         counter++;
         $('.exit-modal').data('showCounter', counter);
         $('.exit-modal .modal-body p').text("Exit modal shown " + counter + " times. Are you sure you want to leave? Please enter your information:");
-        
-        // Clone the user info form and append it to the modal
-        var form = $('#user-info-form').clone();
-        form.removeAttr('style');
-        $('#user-info-form-container').html(form);
     });
 
     $('.exit-modal').on('shown.bs.modal', function (e) {
