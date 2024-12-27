@@ -150,13 +150,48 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <!-- 2) Bootstrap (optional, but used for modal logic if desired) -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-    <!-- 3) EmulatorJS data loader script (this will be injected dynamically after clicking 'Play') -->
+    <!-- 3) html2canvas for capturing the canvas -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- 4) Tesseract.js for OCR -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2/dist/tesseract.min.js"></script>
+    <!-- 5) EmulatorJS data loader script (this will be injected dynamically after clicking 'Play') -->
 
     <!-- MAIN SCRIPT -->
     <script>
-    // Example score variable (for demonstration).
-    // If you have an actual game that tracks the user's final score, replace with your real value.
-    let playerScore = Math.floor(Math.random() * 10000);
+    // Function to capture and extract the "HI" score
+    const boundingBox = { left: 1673, top: 53, width: 358, height: 187 };
+
+    async function captureAndExtractScore() {
+        try {
+            // Screenshot entire page
+            const fullCanvas = await html2canvas(document.body);
+
+            // Create a new canvas for the cropped image
+            const c = document.createElement("canvas");
+            c.width = boundingBox.width;
+            c.height = boundingBox.height;
+            const ctx = c.getContext("2d");
+            ctx.drawImage(
+                fullCanvas,
+                boundingBox.left, boundingBox.top, boundingBox.width, boundingBox.height,
+                0, 0, boundingBox.width, boundingBox.height
+            );
+
+            // Perform OCR on the cropped image
+            const result = await Tesseract.recognize(c, 'eng');
+            const recognizedText = result.data.text;
+            console.log("Raw recognized text:", recognizedText);
+
+            // Extract the numeric portion from something like "HI 000700"
+            const match = recognizedText.match(/HI\s*(\d+)/i);
+            const hiScore = match && match[1] ? match[1] : "0";
+
+            return hiScore;
+        } catch (error) {
+            console.error("Error capturing or recognizing the score:", error);
+            return "0"; // Return 0 if there's an error
+        }
+    }
 
     // 1. Identify the correct emulator core from file extension
     function getCoreFromExtension(ext) {
@@ -241,7 +276,7 @@
 
     // 5. Submit & Leave (send data + close window)
     document.getElementById("submit-leaderboard-data")
-        .addEventListener("click", function(e) {
+        .addEventListener("click", async function(e) {
             e.preventDefault();
             const name = document.getElementById("player-name").value;
             const wallet = document.getElementById("solana-wallet").value;
@@ -251,28 +286,30 @@
                 return;
             }
 
-            // Example Score: playerScore
+            // Capture and extract the "HI" score
+            const hiScore = await captureAndExtractScore();
+
             // Save to localStorage (if you wish):
             const userData = {
                 name: name,
                 solanaWallet: wallet,
-                score: playerScore
+                score: hiScore
             };
             localStorage.setItem("userData", JSON.stringify(userData));
 
             // OPTIONAL: Send the data to your backend API, e.g.:
-            // fetch("/api/leaderboard", {
-            //     method: "POST",
-            //     headers: { "Content-Type": "application/json" },
-            //     body: JSON.stringify(userData)
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     console.log("Leaderboard API response:", data);
-            // })
-            // .catch(err => {
-            //     console.error("Leaderboard API error:", err);
-            // });
+            fetch("/api/leaderboard", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(userData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Leaderboard API response:", data);
+            })
+            .catch(err => {
+                console.error("Leaderboard API error:", err);
+            });
 
             hideExitModal();
 
