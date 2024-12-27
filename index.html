@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>EmulatorJS - Automatic ROM Loading</title>
+    <title>EmulatorJS - Leaderboard Integration</title>
     <link rel="icon" href="docs/favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Include your effects.css file -->
+    <!-- Effects / Styles -->
     <link rel="stylesheet" href="effects.css">
     <link rel="stylesheet" href="styles.css">
+
     <style>
+        /* Basic page styling */
         body, html {
             height: 100%;
             margin: 0;
             overflow: hidden;
             background: url('Zool_start_background.gif') center center / cover no-repeat fixed;
-        }
-        body {
             font-family: monospace;
             font-weight: bold;
             font-size: 2vh;
@@ -29,7 +29,7 @@
             height: 100%;
         }
 
-        /* Hide the input fields */
+        /* Hidden inputs for ROM & BIOS */
         #hidden-inputs {
             display: none;
         }
@@ -43,25 +43,63 @@
             z-index: 1000;
             cursor: pointer;
         }
-
-        /* Adjust the image size if needed */
         #play-button img {
             max-width: 100%;
             height: auto;
             display: block;
         }
 
-        /* Style for the exit modal */
-        .exit-modal .modal-dialog {
-            max-width: 500px;
+        /* Modal styling for exit popup */
+        .modal.exit-modal.fade {
+            display: none; /* hidden by default */
+            position: fixed;
+            z-index: 2000; /* on top of everything */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
         }
-        .exit-modal .modal-body {
+        .modal-dialog {
+            background: #fff;
+            margin: 10% auto;
+            max-width: 500px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .modal-content {
             padding: 20px;
+        }
+        .modal-header,
+        .modal-body,
+        .modal-footer {
+            margin-bottom: 10px;
+        }
+        .close {
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            float: right;
+        }
+        .form-group label {
+            display: block;
+            margin-top: 12px;
+        }
+        .form-control {
+            width: 100%;
+            font-size: 1em;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .btn.btn-primary {
+            font-size: 1em;
+            padding: 8px 16px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <!-- Hidden Inputs -->
+    <!-- Hidden Fields: ROM and BIOS -->
     <div id="hidden-inputs">
         <input type="text" id="rom-url" value="https://raw.githubusercontent.com/FrankieDaDev/EmulatorJS-Zool/main/Zool%20(U).smc">
         <input type="text" id="bios-url" value="https://raw.githubusercontent.com/FrankieDaDev/EmulatorJS-Zool/main/scph5501.bin">
@@ -78,19 +116,19 @@
     </div>
 
     <!-- Exit Modal -->
-    <div class="modal exit-modal fade">
+    <div class="modal exit-modal fade" id="exit-modal">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Exit Intent Popup</h4>
+                    <button class="close" id="close-exit-modal" aria-label="Close">&times;</button>
+                    <h4 class="modal-title">Save Your Score!</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Exit modal shown <span id="modal-counter">0</span> times. Are you sure you want to leave? Please enter your information:</p>
-                    <form id="user-info-form">
+                    <p>Please enter your information to save your score before leaving.</p>
+                    <form id="leaderboard-form">
                         <div class="form-group">
-                            <label for="name">Name:</label>
-                            <input type="text" class="form-control" id="name" required>
+                            <label for="player-name">Name:</label>
+                            <input type="text" class="form-control" id="player-name" required>
                         </div>
                         <div class="form-group">
                             <label for="solana-wallet">Solana Wallet Address:</label>
@@ -99,142 +137,147 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary submit-user-info">Submit and Leave</button>
+                    <button type="button" class="btn btn-primary" id="submit-leaderboard-data">
+                        Submit and Leave
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Scripts -->
+    <!-- 1) jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <!-- 2) Bootstrap (optional, but used for modal logic if desired) -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <!-- 3) EmulatorJS data loader script (this will be injected dynamically after clicking 'Play') -->
+
+    <!-- MAIN SCRIPT -->
     <script>
-        // Function to determine the emulator core based on the ROM file extension
-        const getCoreFromExtension = (ext) => {
-            const coreMap = {
-                "nes": "nes",
-                "unf": "nes",
-                "smc": "snes",
-                "sfc": "snes",
-                "fig": "snes",
-                "bin": "psx",
-                "img": "psx",
-                "iso": "psx",
-                "cue": "psx",
-                // Add other mappings as needed
-            };
-            return coreMap[ext.toLowerCase()] || null;
+    // Example score variable (for demonstration).
+    // If you have an actual game that tracks the user's final score, replace with your real value.
+    let playerScore = Math.floor(Math.random() * 10000);
+
+    // 1. Identify the correct emulator core from file extension
+    function getCoreFromExtension(ext) {
+        const coreMap = {
+            "nes": "nes",
+            "unf": "nes",
+            "smc": "snes",
+            "sfc": "snes",
+            "fig": "snes",
+            "bin": "psx",
+            "img": "psx",
+            "iso": "psx",
+            "cue": "psx"
+            // Add others if required
         };
+        return coreMap[ext.toLowerCase()] || null;
+    }
 
-        // Load ROM and BIOS when the Play Button is clicked
-        document.getElementById("play-button").addEventListener("click", () => {
-            const romUrl = document.getElementById("rom-url").value;
-            const biosUrl = document.getElementById("bios-url").value;
-            const romFileName = romUrl.split("/").pop();
-            const romExtension = romFileName.split(".").pop();
-            const core = getCoreFromExtension(romExtension);
+    // 2. Start the EmulatorJS after the play button is clicked
+    document.getElementById("play-button").addEventListener("click", () => {
+        const romUrl = document.getElementById("rom-url").value;
+        const biosUrl = document.getElementById("bios-url").value;
+        const romFileName = romUrl.split("/").pop();
+        const romExtension = romFileName.split(".").pop();
+        const core = getCoreFromExtension(romExtension);
 
-            if (!core) {
-                alert("Unsupported ROM file type.");
-            } else {
-                // Hide the Play Button
-                document.getElementById("play-button").style.display = 'none';
+        if (!core) {
+            alert("Unsupported ROM file type.");
+        } else {
+            // Hide the Play Button
+            document.getElementById("play-button").style.display = 'none';
 
-                // Configure EmulatorJS
-                window.EJS_player = "#game";
-                window.EJS_core = core;
-                window.EJS_gameUrl = romUrl;
-                window.EJS_gameName = romFileName.split(".")[0]; // Name without extension
-                window.EJS_biosUrl = biosUrl; // BIOS file path
-                window.EJS_pathtodata = "data/";  // Adjust if necessary
-                window.EJS_startOnLoaded = true;
+            // Configure EmulatorJS
+            window.EJS_player = "#game";
+            window.EJS_core = core;
+            window.EJS_gameUrl = romUrl;
+            window.EJS_gameName = romFileName.split(".")[0];
+            window.EJS_biosUrl = biosUrl;
+            window.EJS_pathtodata = "data/";
+            window.EJS_startOnLoaded = true;
 
-                // Load the EmulatorJS loader script
-                const script = document.createElement("script");
-                script.src = "data/loader.js"; // Adjust path if necessary
-                document.body.appendChild(script);
+            // Dynamically load the EmulatorJS loader script
+            const script = document.createElement("script");
+            script.src = "data/loader.js"; // Adjust path if necessary
+            document.body.appendChild(script);
+        }
+    });
+
+    // 3. Show the exit modal when user attempts to close the browser or navigate away
+    // NOTE: Many browsers won't allow a “custom” message here, but we can still show a modal.
+    let isModalShown = false;
+
+    window.addEventListener('beforeunload', function (e) {
+        if (!isModalShown) {
+            // Show our modal
+            e.preventDefault();
+            e.returnValue = '';
+            showExitModal();
+            // Because the user might actually want to navigate away,
+            // we rely on them either canceling or continuing after the form.
+        }
+    });
+
+    function showExitModal() {
+        // Display the modal
+        const modal = document.getElementById('exit-modal');
+        modal.style.display = 'block';
+        isModalShown = true;
+    }
+
+    function hideExitModal() {
+        const modal = document.getElementById('exit-modal');
+        modal.style.display = 'none';
+    }
+
+    // 4. Hook up close (X) button in the modal
+    document.getElementById('close-exit-modal').addEventListener('click', function() {
+        hideExitModal();
+        // If you want the user to remain on the page after closing the modal, do nothing further here.
+        // If you want them to leave anyway, you could do: window.close();
+    });
+
+    // 5. Submit & Leave (send data + close window)
+    document.getElementById("submit-leaderboard-data")
+        .addEventListener("click", function(e) {
+            e.preventDefault();
+            const name = document.getElementById("player-name").value;
+            const wallet = document.getElementById("solana-wallet").value;
+
+            if (!name || !wallet) {
+                alert("Please fill out all fields.");
+                return;
             }
-        });
-    </script>
 
-    <!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js" type="text/javascript"></script>
-    <!-- Bootstrap -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"></script>
-    <!-- Exit plugin -->
-    <script type="text/javascript" src="jquery.exit-modal.js"></script>
-    <!-- Main script -->
-    <script type="text/javascript" src="emulator.js"></script>
+            // Example Score: playerScore
+            // Save to localStorage (if you wish):
+            const userData = {
+                name: name,
+                solanaWallet: wallet,
+                score: playerScore
+            };
+            localStorage.setItem("userData", JSON.stringify(userData));
 
-    <script type="text/javascript">
-        $(document).ready(function(){
-            var timer;
-            var mouseY = 0;
-            var thresholdY = 10; // Adjust this value as needed
+            // OPTIONAL: Send the data to your backend API, e.g.:
+            // fetch("/api/leaderboard", {
+            //     method: "POST",
+            //     headers: { "Content-Type": "application/json" },
+            //     body: JSON.stringify(userData)
+            // })
+            // .then(response => response.json())
+            // .then(data => {
+            //     console.log("Leaderboard API response:", data);
+            // })
+            // .catch(err => {
+            //     console.error("Leaderboard API error:", err);
+            // });
 
-            // Initialize the exit modal
-            $('.exit-modal').on('show.bs.modal', function (e) {
-                var counter = $('.exit-modal').data('showCounter') || 0;
-                counter++;
-                $('.exit-modal').data('showCounter', counter);
-                $('#modal-counter').text(counter);
-            });
+            hideExitModal();
 
-            $('.exit-modal').on('shown.bs.modal', function (e) {
-                timer = setTimeout(function(){
-                    // Commented out: window.location.href = "http://www.jqueryscript.net";
-                }, 4000);
-            });
-
-            $('.exit-modal').on('hide.bs.modal', function (e) {
-                clearTimeout(timer);
-            });
-
-            // Handle form submission
-            $('.submit-user-info').on('click', function () {
-                var name = $('#name').val();
-                var solanaWallet = $('#solana-wallet').val();
-
-                if (name && solanaWallet) {
-                    var userInfo = {
-                        name: name,
-                        solanaWallet: solanaWallet
-                    };
-
-                    // Save user info in JSON format
-                    var jsonUserInfo = JSON.stringify(userInfo);
-                    console.log('User info saved:', jsonUserInfo);
-
-                    // You can send this JSON to a server or save it locally
-                    // For example, to save it locally:
-                    localStorage.setItem('userInfo', jsonUserInfo);
-
-                    // Close the modal and allow the user to leave
-                    $('.exit-modal').modal('hide');
-                    // Commented out: window.location.href = "http://www.jqueryscript.net";
-                } else {
-                    alert('Please fill out all fields.');
-                }
-            });
-
-            // Show the modal when the user tries to leave the page
-            $(document).on('mousemove', function(e) {
-                if (e.clientY < thresholdY && e.clientY < mouseY) {
-                    $('.exit-modal').modal('show');
-                }
-                mouseY = e.clientY;
-            });
-
-            // Fallback for mobile devices
-            $(window).on('touchstart', function(e) {
-                var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
-                if (touch.clientY < thresholdY) {
-                    $('.exit-modal').modal('show');
-                }
-            });
-
-            // Prevent the default behavior of the beforeunload event
-            $(window).on('beforeunload', function(e) {
-                e.preventDefault();
-                e.returnValue = '';
-            });
+            // Finally, close the window hosting EmulatorJS
+            window.close();
         });
     </script>
 </body>
