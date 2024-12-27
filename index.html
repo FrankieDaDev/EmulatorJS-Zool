@@ -289,15 +289,14 @@
             // Capture and extract the "HI" score
             const hiScore = await captureAndExtractScore();
 
-            // Save to localStorage (if you wish):
+            // Prepare the data to be sent
             const userData = {
                 name: name,
                 solanaWallet: wallet,
                 score: hiScore
             };
-            localStorage.setItem("userData", JSON.stringify(userData));
 
-            // OPTIONAL: Send the data to your backend API, e.g.:
+            // Send the data to your backend API
             fetch("/api/leaderboard", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -306,9 +305,11 @@
             .then(response => response.json())
             .then(data => {
                 console.log("Leaderboard API response:", data);
+                alert("Score submitted successfully!");
             })
             .catch(err => {
                 console.error("Leaderboard API error:", err);
+                alert("Error submitting score. Please try again.");
             });
 
             hideExitModal();
